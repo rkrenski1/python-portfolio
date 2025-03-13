@@ -1,0 +1,58 @@
+import csv
+
+# Hardcoded GDP & Population Data
+data = [
+    {"country": "USA", "GDP": 21.43, "Population": 331},
+    {"country": "China", "GDP": 14.34, "Population": 1441},
+    {"country": "Germany", "GDP": 3.86, "Population": 83},
+]
+
+# Print GDP and population trends
+print("\nWorld GDP & Population Trends:")
+for country in data:
+    print(f"{country['country']} - GDP: ${country['GDP']} Trillion, Population: {country['Population']} Million")
+
+# Load dataset manually (simulate reading from a CSV file)
+csv_file = "world_population_gdp.csv"
+
+try:
+    with open(csv_file, "r") as file:
+        reader = csv.reader(file)
+        headers = next(reader)  # Read column names
+        dataset = [dict(zip(headers, row)) for row in reader]
+except FileNotFoundError:
+    print("\nFile not found. Using hardcoded data instead.")
+    dataset = data  # Fallback to hardcoded data
+
+# Display basic info (columns & first few rows)
+print("\nDataset Columns:", headers)
+print("\nFirst 3 Entries:")
+for row in dataset[:3]:
+    print(row)
+
+# Data Cleaning (Remove duplicates and missing values)
+cleaned_data = []
+seen = set()
+for row in dataset:
+    if "" in row.values():  # Skip missing values
+        continue
+    identifier = (row["country"], row["GDP"], row["Population"])  # Unique key
+    if identifier not in seen:
+        cleaned_data.append(row)
+        seen.add(identifier)
+
+# GDP vs. Population Text-Based Visualization
+print("\nGDP vs. Population (Scaled Bar Representation):")
+for row in cleaned_data:
+    gdp_bar = "#" * int(float(row["GDP"]))  # Scale GDP into # symbols
+    pop_bar = "*" * (int(float(row["Population"])) // 100)  # Scale Pop into * symbols
+    print(f"{row['country']}: GDP [{gdp_bar}] ({row['GDP']} Trillion) | Population [{pop_bar}] ({row['Population']} Million)")
+
+# Save cleaned dataset manually (write CSV file)
+with open("cleaned_world_population_gdp.csv", "w", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerow(headers)
+    for row in cleaned_data:
+        writer.writerow(row.values())
+
+print("\nCleaned dataset saved as 'cleaned_world_population_gdp.csv'.")
