@@ -1,43 +1,57 @@
-
+# Sample data
 data = [
     {"category": "Electronics", "purchases": 120},
     {"category": "Clothing", "purchases": 90},
     {"category": "Home & Kitchen", "purchases": 150},
 ]
 
-
+# Display purchase data
 print("Customer Purchase Behavior:")
 for item in data:
     print(f"Category: {item['category']}, Purchases: {item['purchases']}")
 
-
+# Simple text-based visualization
 print("\nPurchase Distribution:")
 for item in data:
     print(f"{item['category']}: {'█' * (item['purchases'] // 10)} ({item['purchases']})")
 
+# Simulating a dataset (since we can't use pandas to read CSVs)
+csv_data = [
+    ["category", "purchases"],
+    ["Electronics", 120],
+    ["Clothing", 90],
+    ["Home & Kitchen", 150],
+    ["Electronics", 80],
+    ["Clothing", 60],
+]
 
-# Load dataset (replace with actual file path)
-data = pd.read_csv('customer_purchases.csv')
+# Removing header
+csv_data.pop(0)
 
-# Display basic info
-print(data.info())
-print(data.head())
+# Data Cleaning (Removing duplicates)
+unique_data = []
+for row in csv_data:
+    if row not in unique_data:
+        unique_data.append(row)
 
-# Data Cleaning (Handle missing values, duplicates, etc.)
-data.dropna(inplace=True)
-data.drop_duplicates(inplace=True)
+# Basic Analysis - Counting purchases per category
+purchase_counts = {}
+for row in unique_data:
+    category, purchases = row
+    if category in purchase_counts:
+        purchase_counts[category] += int(purchases)
+    else:
+        purchase_counts[category] = int(purchases)
 
-# Basic Analysis
-purchase_counts = data['category'].value_counts()
+# Displaying the purchase count
+print("\nTotal Purchases by Category:")
+for category, count in purchase_counts.items():
+    print(f"{category}: {count}")
 
-# Visualization
-plt.figure(figsize=(10, 5))
-sns.barplot(x=purchase_counts.index, y=purchase_counts.values)
-plt.xticks(rotation=45)
-plt.xlabel('Product Category')
-plt.ylabel('Number of Purchases')
-plt.title('Customer Purchase Behavior by Category')
-plt.show()
+# Saving the cleaned data manually (simulating CSV output)
+with open("cleaned_customer_purchases.txt", "w") as file:
+    file.write("category,purchases\n")
+    for category, count in purchase_counts.items():
+        file.write(f"{category},{count}\n")
 
-# Save cleaned dataset
-data.to_csv('cleaned_customer_purchases.csv', index=False)
+print("\nCleaned data saved as 'cleaned_customer_purchases.txt'")
