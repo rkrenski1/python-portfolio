@@ -1,37 +1,63 @@
-from flask import Flask, render_template, request, redirect, url_for
-import sqlite3
+# Simple Expense Tracker Without Flask or SQLite
 
-app = Flask(__name__)
+# In-memory storage for expenses (simulating a database)
+expenses = []
+expense_id = 1  # Auto-incrementing ID
 
-def init_db():
-    conn = sqlite3.connect('expenses.db')
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS expenses 
-                 (id INTEGER PRIMARY KEY, category TEXT, amount REAL, date TEXT)''')
-    conn.commit()
-    conn.close()
+# Initialize "database" by loading data from a file if it exists
+try:
+    with open("expenses.txt", "r") as file:
+        for line in file:
+            parts = line.strip().split("|")
+            if len(parts) == 4:
+                expenses.append({"id": int(parts[0]), "category": parts[1], "amount": float(parts[2]), "date": parts[3]})
+                expense_id = max(expense_id, int(parts[0])) + 1
+except FileNotFoundError:
+    pass  # No existing file, start fresh
 
-@app.route('/')
-def index():
-    conn = sqlite3.connect('expenses.db')
-    c = conn.cursor()
-    c.execute("SELECT * FROM expenses")
-    expenses = c.fetchall()
-    conn.close()
-    return render_template('index.html', expenses=expenses)
+# Function to save expenses to a file (simulating a database)
+def save_expenses():
+    with open("expenses.txt", "w") as file:
+        for exp in expenses:
+            file.write(f"{exp['id']}|{exp['category']}|{exp['amount']}|{exp['date']}\n")
 
-@app.route('/add', methods=['POST'])
+# Function to display all expenses
+def show_expenses():
+    print("\nExpenses List:")
+    for exp in expenses:
+        print(f"ID: {exp['id']} | Category: {exp['category']} | Amount: ${exp['amount']:.2f} | Date: {exp['date']}")
+
+# Function to add a new expense
 def add_expense():
-    category = request.form['category']
-    amount = request.form['amount']
-    date = request.form['date']
-    conn = sqlite3.connect('expenses.db')
-    c = conn.cursor()
-    c.execute("INSERT INTO expenses (category, amount, date) VALUES (?, ?, ?)", (category, amount, date))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('index'))
+    global expense_id
+    category = input("Enter expense category: ")
+    amount = input("Enter amount: ")
+    date = input("Enter date (YYYY-MM-DD): ")
+    
+    try:
+        amount = float(amount)  # Validate amount
+        expenses.append({"id": expense_id, "category": category, "amount": amount, "date": date})
+        expense_id += 1
+        save_expenses()
+        print("Expense added successfully!")
+    except ValueError:
+        print("Invalid amount. Please enter a number.")
 
-if __name__ == '__main__':
-    init_db()
-    app.run(debug=True)
+# Command-line menu loop
+while True:
+    print("\nExpense Tracker Menu:")
+    print("1. Show Expenses")
+    print("2. Add Expense")
+    print("3. Exit")
+    
+    choice = input("Choose an option: ")
+    
+    if choice == "1":
+        show_expenses()
+    elif choice == "2":
+        add_expense()
+    elif choice == "3":
+        print("Goodbye!")
+        break
+    else:
+        print("Invalid option. Please try again.")
