@@ -1,6 +1,20 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+
+data = [
+    {"category": "Electronics", "purchases": 120},
+    {"category": "Clothing", "purchases": 90},
+    {"category": "Home & Kitchen", "purchases": 150},
+]
+
+
+print("Customer Purchase Behavior:")
+for item in data:
+    print(f"Category: {item['category']}, Purchases: {item['purchases']}")
+
+
+print("\nPurchase Distribution:")
+for item in data:
+    print(f"{item['category']}: {'█' * (item['purchases'] // 10)} ({item['purchases']})")
+
 
 # Load dataset (replace with actual file path)
 data = pd.read_csv('customer_purchases.csv')
